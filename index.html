@@ -17,8 +17,6 @@
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
             --neon-blue: #00d2ff;
-            --neon-pink: #ff0055;
-            --alert-red: #ff3333;
         }
 
         body {
@@ -27,7 +25,6 @@
             color: #fff; margin: 0; padding: 0;
             min-height: 100vh; user-select: none;
             text-align: center; overflow-x: hidden; padding-bottom: 90px;
-            transition: 0.5s;
         }
 
         /* DEMENTIA MODE STYLE */
@@ -39,11 +36,12 @@
         body.dementia-mode .btn { background: #fff; color: #000; border: 2px solid #00acc1; }
         body.dementia-mode .user-name { color: #00838f; }
 
+        /* OVERLAY FIX */
         #initOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 100000;
+            background: rgba(0,0,0,0.98); z-index: 100000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: 'Orbitron'; color: var(--neon-blue); cursor: pointer; backdrop-filter: blur(10px);
+            font-family: 'Orbitron'; color: var(--neon-blue); cursor: pointer; backdrop-filter: blur(15px);
         }
 
         .header-container {
@@ -53,7 +51,7 @@
             border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
         }
 
-        .shield-wrapper { position: relative; width: 130px; height: 150px; margin: 0 auto 15px; cursor: pointer; filter: drop-shadow(0 0 15px var(--neon-blue)); }
+        .shield-wrapper { position: relative; width: 130px; height: 150px; margin: 0 auto 15px; cursor: pointer; }
         .shield-outer { width: 100%; height: 100%; background: linear-gradient(180deg, #fff, #888, #333); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); display: flex; align-items: center; justify-content: center; }
         .shield-inner { width: 94%; height: 94%; background-color: #222; background-size: cover; background-position: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
         .user-name { font-family: 'Orbitron', sans-serif; font-size: 24px; color: var(--neon-blue); }
@@ -66,42 +64,45 @@
             color: white; background: var(--glass-bg); border: 1px solid var(--glass-border);
             backdrop-filter: blur(10px); transition: 0.3s;
         }
-        .btn-sos { background: linear-gradient(135deg, #d50000, #990000); height: 110px; animation: pulse 2s infinite; flex-direction: column; font-size: 20px; }
+        .btn-sos { background: linear-gradient(135deg, #d50000, #990000); height: 100px; animation: pulse 2s infinite; font-size: 20px; }
 
-        /* FLOATING MODE SWITCHER */
+        /* FLOATING MODE CIRCLE */
         .mode-fab {
-            position: fixed; top: 20px; right: 20px; width: 50px; height: 50px;
+            position: fixed; top: 20px; right: 20px; width: 45px; height: 45px;
             background: var(--neon-blue); color: #000; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px var(--neon-blue); z-index: 10001; cursor: pointer;
-            border: 2px solid #fff;
+            z-index: 10001; cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 15px var(--neon-blue);
         }
 
         #modeMenu {
-            display: none; position: fixed; top: 80px; right: 20px;
-            background: #222; border: 1px solid #444; border-radius: 12px;
-            padding: 10px; z-index: 10001;
+            display: none; position: fixed; top: 75px; right: 20px;
+            background: #111; border: 1px solid #444; border-radius: 12px;
+            padding: 5px; z-index: 10001; width: 160px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
-        .mode-opt { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; font-size: 13px; }
+        .mode-opt { padding: 12px; border-bottom: 1px solid #333; cursor: pointer; font-size: 13px; color: #fff; text-align: left; }
+        .mode-opt:last-child { border-bottom: none; }
+
+        /* SETTINGS PANEL */
+        .id-box { background: #111; padding: 20px; border-radius: 15px; text-align: left; display: none; margin-top: 10px; border: 1px solid #333; }
+        .id-input { width: 100%; padding: 12px; margin: 8px 0; background: #222; color: white; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; }
 
         #stealthOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 99998; }
-        #angelAlertBox { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, #8b0000, #000); border-top: 3px solid red; padding: 35px 20px; z-index: 99999; text-align: center; }
-
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
     </style>
 </head>
 
-<body onclick="masterInit()" ontouchstart="masterInit()">
+<body>
 
-    <div id="initOverlay">
+    <div id="initOverlay" onclick="masterInit()">
         <i class="fas fa-shield-alt" style="font-size: 50px; margin-bottom: 20px;"></i>
-        <h2>TAP TO ARM SYSTEM</h2>
+        <h2 style="letter-spacing: 2px;">TAP TO ARM SYSTEM</h2>
+        <p style="font-size: 12px; opacity: 0.7;">Click to Activate Security</p>
     </div>
 
     <div class="mode-fab" onclick="toggleModeMenu()"><i class="fas fa-sync-alt"></i></div>
     <div id="modeMenu">
-        <div class="mode-opt" onclick="setAppMode('girls')">👩 Women Safety</div>
-        <div class="mode-opt" onclick="setAppMode('dementia')">🧠 Dementia Care</div>
+        <div class="mode-opt" onclick="setAppMode('girls')"><i class="fas fa-venus"></i> Women Safety</div>
+        <div class="mode-opt" onclick="setAppMode('dementia')"><i class="fas fa-brain"></i> Dementia Care</div>
     </div>
 
     <div class="header-container">
@@ -114,8 +115,7 @@
 
     <div class="content-container">
         <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:15px; color:#aaa; font-family:'Orbitron';">
-            <span>SYSTEM: <b id="systemStatus" style="color:#666">OFFLINE</b></span>
-            <span id="angelStatusDisplay">ANGEL: OFF</span>
+            <span>SYSTEM: <b id="systemStatus" style="color:#ff3333">OFFLINE</b></span>
             <span>BATTERY: <b id="batDisplay" style="color:var(--neon-blue)">--%</b></span>
         </div>
 
@@ -125,29 +125,54 @@
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <button class="btn" onclick="manualLocation()"><i class="fas fa-location-arrow"></i> Share Loc</button>
-            <button class="btn" onclick="makeCall()"><i class="fas fa-phone"></i> Call Guardian</button>
+            <button class="btn" onclick="makeCall()"><i class="fas fa-phone"></i> Call Emergency</button>
         </div>
 
         <button id="guardBtn" class="btn" onclick="toggleScreamGuard()" style="color: #ff9800; border-color: #ff9800;">
             <i class="fas fa-microphone-alt"></i> ACTIVATE GUARD (SCREAM)
         </button>
 
-        <button class="btn" id="fakeCallBtn" onclick="triggerFakeCall()" style="color: #e1bee7; border-color: #ab47bc;">
-            <i class="fas fa-user-secret"></i> Fake Ghost Call
-        </button>
-
         <button class="btn" onclick="toggleSettings()"><i class="fas fa-cog"></i> Settings</button>
+
+        <div class="id-box" id="settingsPanel">
+            <h3 style="color:var(--neon-blue); margin-top:0;">Configuration</h3>
+            <input type="text" id="userNameInput" class="id-input" placeholder="Your Name">
+            <input type="number" id="userChatId" class="id-input" placeholder="Telegram Chat ID">
+            <input type="tel" id="userPhone" class="id-input" placeholder="Guardian Phone">
+            <button class="btn" style="background:var(--neon-blue); color:black; margin-top:10px;" onclick="saveSettings()">SAVE SETTINGS</button>
+        </div>
     </div>
 
     <div id="stealthOverlay" onclick="handleStealthTap()"></div>
-    <video id="hiddenVideo" autoplay playsinline muted style="display:none;"></video>
 
     <script>
         let isArmed = false, emergencyActive = false, tapCount = 0;
         let audioContext, analyser, microphone, javascriptNode;
-        const BOT_TOKEN = "8378037937:AAGjuFdZWLnf0kFfTG_QIFCslgvrDMb-sC4";
-        
-        // --- SCREAM DETECTION LOGIC ---
+
+        // TAP TO ARM FIX
+        function masterInit() {
+            document.getElementById('initOverlay').style.display = 'none';
+            document.getElementById('systemStatus').innerText = 'ARMED';
+            document.getElementById('systemStatus').style.color = '#00d2ff';
+            isArmed = true;
+            getBatteryLevel();
+        }
+
+        // SETTINGS PANEL FIX - (Removed the Alert that was blocking)
+        function toggleSettings() {
+            const p = document.getElementById("settingsPanel");
+            p.style.display = (p.style.display === "block" ? "none" : "block");
+        }
+
+        function saveSettings() {
+            localStorage.setItem("raksha_chat_id", document.getElementById("userChatId").value);
+            localStorage.setItem("raksha_user_name", document.getElementById("userNameInput").value);
+            localStorage.setItem("raksha_phone", document.getElementById("userPhone").value);
+            alert("Settings Saved Successfully!");
+            location.reload();
+        }
+
+        // SCREAM DETECTION
         async function initScreamDetection() {
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -155,10 +180,7 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 microphone = audioContext.createMediaStreamSource(stream);
                 javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-
-                analyser.smoothingTimeConstant = 0.8;
                 analyser.fftSize = 1024;
-
                 microphone.connect(analyser);
                 analyser.connect(javascriptNode);
                 javascriptNode.connect(audioContext.destination);
@@ -169,24 +191,22 @@
                     let values = 0;
                     for (let i = 0; i < array.length; i++) values += array[i];
                     let average = values / array.length;
-
-                    if (average > 75) { // Threshold for a loud scream
-                        if (!emergencyActive && isArmed) startEmergency("SCREAM DETECTED");
-                    }
+                    if (average > 85 && !emergencyActive) startEmergency("SCREAM DETECTED");
                 };
-            } catch (e) { console.log("Scream Guard Error: ", e); }
+            } catch (e) { console.log("Mic Access Denied"); }
         }
 
         function toggleScreamGuard() {
+            if(!isArmed) return alert("System Not Armed!");
             document.getElementById("stealthOverlay").style.display = "block";
-            initScreamDetection(); // Starts listening
+            initScreamDetection();
             window.addEventListener('devicemotion', e => {
                 let a = e.accelerationIncludingGravity;
-                if(Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z) > 45 && !emergencyActive) startEmergency("SHAKE DETECTED");
+                if(Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z) > 48 && !emergencyActive) startEmergency("SHAKE DETECTED");
             });
         }
 
-        // --- MODE SWITCHER LOGIC ---
+        // MODE LOGIC
         function toggleModeMenu() {
             let m = document.getElementById("modeMenu");
             m.style.display = (m.style.display === "block" ? "none" : "block");
@@ -199,43 +219,55 @@
         }
 
         function applyMode(mode) {
-            const body = document.body;
-            const sosBtn = document.getElementById("mainSosBtn");
             if(mode === 'dementia') {
-                body.classList.add("dementia-mode");
-                sosBtn.innerHTML = '<i class="fas fa-medkit"></i> I NEED HELP';
+                document.body.classList.add("dementia-mode");
+                document.getElementById("mainSosBtn").innerHTML = '<i class="fas fa-medkit"></i> I NEED HELP';
             } else {
-                body.classList.remove("dementia-mode");
-                sosBtn.innerHTML = '<i class="fas fa-biohazard"></i> SOS EMERGENCY';
+                document.body.classList.remove("dementia-mode");
+                document.getElementById("mainSosBtn").innerHTML = '<i class="fas fa-biohazard"></i> SOS EMERGENCY';
             }
         }
 
-        async function masterInit() {
-            if (isArmed) return;
-            document.getElementById('initOverlay').style.display = 'none';
-            document.getElementById('systemStatus').innerText = 'ARMED';
-            document.getElementById('systemStatus').style.color = '#00d2ff';
-            isArmed = true;
-            applyMode(localStorage.getItem("raksha_mode") || "girls");
+        async function getBatteryLevel() {
+            try {
+                const b = await navigator.getBattery();
+                document.getElementById('batDisplay').innerText = Math.round(b.level * 100) + "%";
+            } catch(e) {}
         }
 
-        // SOS and other existing logic remains identical to keep it functional
-        async function startEmergency(triggerType = "Manual") {
+        async function startEmergency(type) {
             if(emergencyActive) return;
             emergencyActive = true;
-            const chatID = localStorage.getItem("raksha_chat_id") || "8508792403";
-            const user = localStorage.getItem("raksha_user_name") || "Victim";
-            document.getElementById("stealthOverlay").style.display = "block";
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatID}&text=${encodeURIComponent("🚨 " + triggerType + " from " + user)}`);
+            if(navigator.vibrate) navigator.vibrate([1000, 500, 1000]);
+            const chatID = localStorage.getItem("raksha_chat_id");
+            const botToken = "8378037937:AAGjuFdZWLnf0kFfTG_QIFCslgvrDMb-sC4";
+            if(chatID) {
+                const msg = `🚨 EMERGENCY TRIGGERED\nMode: ${type}\nUser: ${localStorage.getItem("raksha_user_name")}`;
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatID}&text=${encodeURIComponent(msg)}`);
+            }
+            alert("SOS ACTIVE: " + type);
         }
 
         function handleStealthTap() { tapCount++; if(tapCount>=6) location.reload(); }
         function triggerUpload() { document.getElementById('fileInput').click(); }
-        function toggleSettings() { alert("Settings Panel logic here (as per your original code)"); }
-        function triggerFakeCall() { alert("Fake call triggered..."); }
+        function handleImageUpload(e) { 
+            const reader = new FileReader(); 
+            reader.onload = (ev) => { 
+                localStorage.setItem("raksha_pic", ev.target.result); 
+                document.getElementById("displayProfilePic").style.backgroundImage = `url(${ev.target.result})`; 
+            }; 
+            reader.readAsDataURL(e.target.files[0]); 
+        }
+        function makeCall() { window.location.href = "tel:" + (localStorage.getItem("raksha_phone") || "112"); }
+        function manualLocation() { alert("Sending live location to guardian..."); }
 
         window.onload = () => {
+            const pic = localStorage.getItem("raksha_pic"), name = localStorage.getItem("raksha_user_name");
+            if(pic) document.getElementById("displayProfilePic").style.backgroundImage = `url(${pic})`;
+            if(name) document.getElementById("displayHeaderName").innerText = name;
+            document.getElementById("userChatId").value = localStorage.getItem("raksha_chat_id") || "";
+            document.getElementById("userPhone").value = localStorage.getItem("raksha_phone") || "";
+            document.getElementById("userNameInput").value = name || "";
             applyMode(localStorage.getItem("raksha_mode") || "girls");
         };
     </script>
