@@ -1,9 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script></script>
+<script>
+        let lastId = 0;
+        async function checkAlert(){
+            try{
+                let res = await fetch("alert.json?"+Date.now());
+                let data = await res.json();
+                if(data.id != lastId){
+                    lastId = data.id;
+                    alert("⚠ RAKSHA ELITE ALERT\n\n" + data.msg);
+                    let audio = new Audio("alarm.mp3");
+                    audio.play();
+                }
+            }catch(e){ console.log("Alert check error"); }
+        }
+        setInterval(checkAlert,10000);
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rakshak Master - Dual Ecosystem</title>
+    <title>Raksha Elite - Dual Ecosystem</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,406 +35,500 @@
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --neon-blue: #00d2ff; --neon-pink: #ff0055; --alert-red: #ff3333; --success: #10b981;
             --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --neon-blue: #00d2ff;
+            --neon-pink: #ff0055;
+            --alert-red: #ff3333;
         }
 
-        body { font-family: 'Poppins', sans-serif; background: var(--bg-gradient); color: #fff; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
+        body {
+            font-family: 'Poppins', sans-serif; background: var(--bg-gradient); color: #fff; margin: 0; padding: 0; min-height: 100vh; user-select: none; text-align: center; overflow-x: hidden; padding-bottom: 90px;
+        }
 
-        /* Header */
-        .header { background: rgba(0,0,0,0.6); padding: 15px; text-align: center; border-bottom: 2px solid var(--neon-blue); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
-        .header h1 { font-family: 'Orbitron'; font-size: 1.5rem; margin: 0; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon-blue); }
-        
-        /* Mode Switcher */
-        .mode-switch-container { margin: 20px; display: flex; background: rgba(0,0,0,0.5); border-radius: 30px; padding: 5px; border: 1px solid var(--neon-blue); }
-        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 25px; font-weight: bold; font-family: 'Orbitron'; color: #888; background: transparent; cursor: pointer; transition: 0.3s; }
+        #initOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Orbitron'; color: var(--neon-blue); cursor: pointer; backdrop-filter: blur(10px);
+        }
+
+        .header-container { padding: 40px 20px 20px; background: radial-gradient(circle at top, #1a237e, #000); border-bottom: 2px solid var(--neon-blue); border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2); }
+        .shield-wrapper { position: relative; width: 130px; height: 150px; margin: 0 auto 15px; cursor: pointer; filter: drop-shadow(0 0 15px var(--neon-blue)); }
+        .shield-outer { width: 100%; height: 100%; background: linear-gradient(180deg, #fff, #888, #333); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); display: flex; align-items: center; justify-content: center; }
+        .shield-inner { width: 94%; height: 94%; background-color: #222; background-size: cover; background-position: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+        .user-name { font-family: 'Orbitron', sans-serif; font-size: 24px; color: var(--neon-blue); margin-bottom: 10px; }
+
+        /* Mode Switcher Styles */
+        .mode-toggle { display: flex; background: rgba(0,0,0,0.5); border-radius: 20px; padding: 5px; border: 1px solid var(--neon-blue); width: 80%; margin: 0 auto; }
+        .mode-btn { flex: 1; padding: 10px; border: none; border-radius: 15px; font-weight: bold; font-family: 'Orbitron'; color: #888; background: transparent; cursor: pointer; transition: 0.3s; font-size: 12px; }
         .mode-btn.active.native { background: var(--neon-pink); color: white; box-shadow: 0 0 15px var(--neon-pink); }
         .mode-btn.active.dementia { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
 
-        .content-container { padding: 0 20px 80px 20px; }
-        .panel { display: none; animation: fadeIn 0.4s ease; }
-        .panel.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .content-container { padding: 20px 20px; }
+        .btn { width: 100%; border: none; border-radius: 16px; padding: 18px; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); transition: 0.3s; }
+        .btn-sos { background: linear-gradient(135deg, #d50000, #990000); height: 110px; border: 1px solid #ff5252; animation: pulse 2s infinite; flex-direction: column; font-size: 20px; }
+        
+        #fakeCallScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #0f2027, #2c5364); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: space-between; padding: 60px 0; color: white; }
+        .call-actions { display: flex; width: 80%; justify-content: space-between; margin-bottom: 50px; }
+        .action-btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 24px; color: white; cursor: pointer; }
+        .decline { background: #ff3b30; } .accept { background: #4cd964; }
 
-        /* Buttons & Forms */
-        .btn { width: 100%; border: none; border-radius: 16px; padding: 16px; margin-bottom: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; color: white; background: var(--glass-bg); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-sos { background: linear-gradient(135deg, #d50000, #990000); height: 100px; border: 1px solid #ff5252; animation: pulse 2s infinite; font-size: 20px; flex-direction: column; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #aaa; }
-        .form-group input { width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 1px solid #444; border-radius: 8px; color: white; box-sizing: border-box; }
+        #secretModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 20000; overflow-y: auto; padding: 20px; }
+        .id-box { background: #111; padding: 20px; border-radius: 15px; text-align: left; display: none; margin-top: 20px; border: 1px solid #333; }
+        .id-input { width: 100%; padding: 12px; margin: 8px 0; background: #222; color: white; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; }
 
-        /* Map */
-        .map-wrapper { height: 400px; border-radius: 16px; border: 2px solid var(--neon-blue); overflow: hidden; margin-bottom: 15px; box-shadow: 0 0 20px rgba(0, 210, 255, 0.2); }
-        #map { height: 100%; width: 100%; }
-
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; padding: 15px 0; border-top: 1px solid #333; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: #666; cursor: pointer; font-size: 20px; transition: 0.3s; }
-        .nav-item.active { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
-
-        /* Alerts */
-        #status-bar { background: rgba(0,0,0,0.8); color: white; padding: 10px; text-align: center; font-family: 'Orbitron'; position: fixed; top: 60px; width: 100%; z-index: 999; display: none; border-bottom: 2px solid var(--success); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        #stealthOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 99998; }
+        #angelAlertBox { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, #8b0000, #000); border-top: 3px solid red; padding: 35px 20px; z-index: 99999; text-align: center; }
+  
+        /* Dementia specific styles */
+        #dementia-map { height: 350px; width: 100%; border-radius: 16px; border: 2px solid var(--neon-blue); margin-bottom: 15px; }
     </style>
 </head>
+
 <body>
 
-    <div class="header">
-        <h1>🛡️ RAKSHAK MASTER</h1>
+    <div id="initOverlay" onclick="masterInit()" ontouchstart="masterInit()">
+        <i class="fas fa-shield-alt" style="font-size: 50px; margin-bottom: 20px;"></i>
+        <h2 style="letter-spacing: 2px;">TAP TO ARM SYSTEM</h2>
+        <p style="font-size: 12px; opacity: 0.8;">Initializes Hardcore Security Mode</p>
     </div>
 
-    <div id="status-bar">SYSTEM ONLINE</div>
+    <div class="header-container">
+        <div class="shield-wrapper" onclick="triggerUpload()">
+            <div class="shield-outer"><div class="shield-inner" id="displayProfilePic"></div></div>
+        </div>
+        <div class="user-name" id="displayHeaderName">Raksha User</div>
+        
+        <div class="mode-toggle">
+            <button id="btn-native" class="mode-btn active native" onclick="switchAppMode('native')">WOMEN SAFETY</button>
+            <button id="btn-dementia" class="mode-btn dementia" onclick="switchAppMode('dementia')">DEMENTIA CARE</button>
+        </div>
 
-    <div class="mode-switch-container">
-        <button class="mode-btn active native" onclick="app.switchMode('native')" id="btn-native">NATIVE MODE</button>
-        <button class="mode-btn dementia" onclick="app.switchMode('dementia')" id="btn-dementia">DEMENTIA CARE</button>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleImageUpload(event)" style="display:none;">
     </div>
 
     <div class="content-container">
-        
-        <div id="panel-native" class="panel active">
-            <h3 style="color:var(--neon-pink); text-align:center;">Women Safety & Stealth</h3>
-            
-            <button class="btn btn-sos" onclick="app.triggerSOS('Manual SOS')">
-                <i class="fas fa-biohazard"></i> EMERGENCY SOS
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:15px; color:#aaa; font-family:'Orbitron';">
+            <span>SYSTEM: <b id="systemStatus" style="color:#666">OFFLINE</b></span>
+            <span id="angelStatusDisplay">ANGEL: OFF</span>
+            <span>BATTERY: <b id="batDisplay" style="color:var(--neon-blue)">--%</b></span>
+        </div>
+
+        <div id="native-panel">
+            <button class="btn btn-sos" onclick="startEmergency('Manual SOS')">
+                <i class="fas fa-biohazard"></i> SOS EMERGENCY
             </button>
-            
+
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button class="btn" style="background:#4cd964;" onclick="app.triggerFakeCall()"><i class="fas fa-phone"></i> Fake Call</button>
-                <button class="btn" style="background:#ff9800;" onclick="app.toggleStealth()"><i class="fas fa-user-secret"></i> Stealth Guard</button>
+                <button class="btn" onclick="manualLocation()"><i class="fas fa-location-arrow"></i> Share Loc</button>
+                <button class="btn" onclick="makeCall()"><i class="fas fa-phone"></i> Call Emergency</button>
             </div>
-            
-            <div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:12px; margin-top:20px; text-align:center;">
-                <span style="color:var(--neon-blue); font-weight:bold; font-family:'Orbitron';">😇 ANGEL MODE</span>
-                <p style="font-size:12px; color:#aaa;">Listens for nearby emergencies to protect others.</p>
-                <button class="btn" id="angelBtn" onclick="app.toggleAngel()" style="background:#222;">Turn ON Angel Mode</button>
+
+            <button id="guardBtn" class="btn" onclick="toggleScreamGuard()" style="color: #ff9800; border-color: #ff9800;">
+                <i class="fas fa-shield-alt"></i> ACTIVATE GUARD MODE
+            </button>
+
+            <button class="btn" onclick="triggerFakeCall()" style="color: #e1bee7; border-color: #ab47bc;">
+                <i class="fas fa-user-secret"></i> Fake Ghost Call
+            </button>
+
+            <button class="btn" onclick="toggleSettings()"><i class="fas fa-cog"></i> Settings</button>
+            <button class="btn" onclick="openSecretMode()" style="font-size:10px; opacity:0.7;"><i class="fas fa-lock"></i> Secure Vault</button>
+
+            <div class="id-box" id="settingsPanel">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <span style="color:var(--neon-blue); font-weight:bold;">😇 ANGEL MODE</span>
+                    <input type="checkbox" id="angelToggle" onchange="toggleAngelMode()">
+                </div>
+                <input type="text" id="userNameInput" class="id-input" placeholder="Your Name">
+                <input type="number" id="userChatId" class="id-input" placeholder="Telegram Chat ID">
+                <input type="tel" id="userPhone" class="id-input" placeholder="Guardian Phone">
+                <button class="btn" style="background:var(--neon-blue); color:black; margin-top:10px;" onclick="saveSettings()">SAVE CONFIG</button>
             </div>
         </div>
 
-        <div id="panel-dementia" class="panel">
-            <h3 style="color:var(--neon-blue); text-align:center;">Patient Auto-Navigation</h3>
+        <div id="dementia-panel" style="display:none;">
+            <div id="dementia-map"></div>
             
-            <div class="map-wrapper"><div id="map"></div></div>
-            
-            <div style="background:rgba(0,210,255,0.1); border:1px solid var(--neon-blue); padding:15px; border-radius:12px; text-align:center;">
-                <h4 id="dementia-status" style="margin:0 0 10px 0; color:var(--success);">✅ Patient is Safe (Inside Home Zone)</h4>
-                <p style="font-size:12px; color:#aaa; margin-bottom:15px;">If the patient leaves the 50m radius, the app will auto-route them back using Voice Navigation.</p>
-                <button class="btn" onclick="app.setDementiaHome()" style="background:var(--neon-blue); color:black;">
+            <div style="background:rgba(0,0,0,0.5); border:1px solid var(--neon-blue); padding:15px; border-radius:12px; margin-bottom:15px;">
+                <h3 id="dem-status-text" style="color: var(--success); margin: 0 0 5px 0;">✅ Patient is Safe (Inside Home Zone)</h3>
+                <p style="font-size:12px; color:#aaa; margin:0 0 10px 0;">App will auto-route with Voice Guidance if patient wanders beyond 50m.</p>
+                <button class="btn" onclick="setDementiaHome()" style="background:var(--neon-blue); color:black; margin-bottom:0;">
                     <i class="fas fa-home"></i> Set Current Location as HOME
                 </button>
             </div>
         </div>
 
-        <div id="panel-settings" class="panel">
-            <h3 style="text-align:center;">System Configuration</h3>
-            <div class="form-group"><label>Telegram Bot Token</label><input type="password" id="tg-token" placeholder="Bot Token"></div>
-            <div class="form-group"><label>Caregiver Chat ID</label><input type="text" id="tg-chatid" placeholder="123456789"></div>
-            <div class="form-group"><label>Patient / User Name</label><input type="text" id="user-name" placeholder="John Doe"></div>
-            <button class="btn" onclick="app.saveSettings()" style="background:var(--success);">Save Configuration</button>
+    </div>
+
+    <div id="angelAlertBox">
+        <div style="color:#ff5252; font-weight:bold; letter-spacing:2px; margin-bottom:10px;">🚨 NEARBY EMERGENCY 🚨</div>
+        <div id="victimDisplayName" style="font-size: 22px; font-family: 'Orbitron';">VICTIM NAME</div>
+        <button class="btn" style="background:white; color:red; font-weight:bold; margin-top:15px;" onclick="openMapToVictim()">NAVIGATE LIVE</button>
+        <div onclick="closeAngelAlert()" style="color:#aaa; text-decoration:underline; font-size:12px; margin-top:10px; cursor:pointer;">Mute</div>
+    </div>
+
+    <div id="fakeCallScreen">
+        <div style="text-align:center;">
+            <div style="width:100px; height:100px; background:#ddd; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:40px; color:#333;"><i class="fas fa-user-secret"></i></div>
+            <div style="font-size:32px; font-weight:bold; margin-top:20px;">Police Emergency</div>
         </div>
-
+        <div class="call-actions">
+            <button class="action-btn decline" onclick="endFakeCall()"><i class="fas fa-times"></i></button>
+            <button class="action-btn accept" onclick="answerFakeCall()"><i class="fas fa-phone"></i></button>
+        </div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="app.switchTab('home', this)"><i class="fas fa-shield-alt"></i></div>
-        <div class="nav-item" onclick="app.switchTab('settings', this)"><i class="fas fa-cog"></i></div>
+    <div id="secretModal">
+        <div id="fakeLogin" style="text-align:center; padding-top:50px; color:white;">
+            <i class="fas fa-fingerprint" style="font-size:50px; color:#444; margin-bottom:20px;"></i>
+            <h2>ACCESS DENIED</h2>
+            <p style="color:#666;">Enter Override PIN (1234)</p>
+            <input type="password" id="secretPass" class="id-input" placeholder="PIN" style="text-align:center; font-size:20px; width:50%;">
+            <br>
+            <button class="btn" style="width:50%; margin-top:10px;" onclick="checkSecretPass()">UNLOCK</button>
+            <br><br>
+            <button onclick="closeSecretMode()" style="background:none; border:none; color:#888;">CLOSE</button>
+        </div>
+        <div id="realHelp" style="display:none; text-align:center; padding-top:50px; color:white;">
+            <h1 style="color:#d32f2f;">Silent Zone</h1>
+            <button class="btn" style="width:100%; justify-content:center;" onclick="window.open('https://stopncii.org/')">Block Leaked Images (NCII)</button>
+            <button onclick="closeSecretMode()" style="background:none; border:none; color:#888; margin-top:20px;">CLOSE</button>
+        </div>
     </div>
+
+    <div id="stealthOverlay" onclick="handleStealthTap()"></div>
+    <video id="hiddenVideo" autoplay playsinline muted style="display:none;"></video>
+
+    <div id="draggable-human" class="floating-container">
+        <div class="message-bubble" id="help-bubble">Need Support? 😊</div>
+        <a href="https://phantom1729.github.io/Trusted/" target="_blank" rel="noopener noreferrer" class="human-btn">
+            <div class="glow-layer"></div>
+            <div class="character">
+                <span class="emoji">❤️</span>
+                <span class="heart-icon"></span>
+            </div>
+        </a>
+        <audio id="heart-sound" loop><source src="https://www.soundjay.com" type="audio/mpeg"></audio>
+    </div>
+
+    <style>
+        .floating-container { position: fixed; bottom: 30px; right: 30px; z-index: 999999; cursor: move; touch-action: none; }
+        .human-btn { position: relative; width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; text-decoration: none; background: radial-gradient(circle, #ff9a9e 0%, #fecfef 100%); border-radius: 50%; box-shadow: 0 0 20px rgba(255, 105, 180, 0.6); animation: heartbeat 1.5s ease-in-out infinite; user-select: none; }
+        .glow-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 50%; animation: glowing 2s infinite alternate; }
+        .character { font-size: 45px; position: relative; z-index: 2; }
+        .heart-icon { position: absolute; font-size: 22px; bottom: -2px; right: -2px; animation: pulse-heart 0.8s infinite; }
+        .message-bubble { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); background: #ffffff; padding: 10px 15px; border-radius: 20px; font-family: sans-serif; font-size: 14px; color: #333; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.15); opacity: 1; border: 2px solid #ff9a9e; }
+        .message-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0; border-style: solid; border-color: #ff9a9e transparent transparent; }
+        @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.1); } 30% { transform: scale(1); } 45% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @keyframes glowing { 0% { box-shadow: 0 0 10px rgba(255, 105, 180, 0.4); } 100% { box-shadow: 0 0 40px rgba(255, 105, 180, 0.9); } }
+        @keyframes pulse-heart { 0% { transform: scale(1); } 100% { transform: scale(1.4); } }
+    </style>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
     <script>
-        class RakshakSuperApp {
-            constructor() {
-                // Firebase Config (Using your provided keys)
-                if (!firebase.apps.length) {
-                    firebase.initializeApp({
-                        apiKey: "AIzaSyBRVPpAPAquoxRrMxSUbinZ9Z8bRIlB37M",
-                        databaseURL: "https://raksha-network-299bf-default-rtdb.firebaseio.com",
-                        projectId: "raksha-network-299bf"
-                    });
-                }
-                this.db = firebase.database();
+        // ==========================================
+        // DUAL MODE SWITCHER LOGIC
+        // ==========================================
+        let currentMode = 'native';
+        function switchAppMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-native').className = `mode-btn native ${mode==='native'?'active':''}`;
+            document.getElementById('btn-dementia').className = `mode-btn dementia ${mode==='dementia'?'active':''}`;
+            
+            document.getElementById('native-panel').style.display = mode === 'native' ? 'block' : 'none';
+            document.getElementById('dementia-panel').style.display = mode === 'dementia' ? 'block' : 'none';
 
-                // State
-                this.mode = 'native'; // 'native' or 'dementia'
-                this.currentPos = null;
-                this.map = null;
-                this.userMarker = null;
-                this.homeZone = null; // {lat, lng, radius: 50}
-                this.homeCircle = null;
-                
-                // Dementia Routing State
-                this.routingControl = null;
-                this.isWandering = false;
-                this.lastInstruction = "";
-
-                // Speech Engine
-                this.synth = window.speechSynthesis;
-
-                // Settings
-                this.settings = { token: '', chatId: '', name: 'User' };
-                this.loadSettings();
-
-                this.initGPS();
-            }
-
-            // ================== UI CONTROLS ==================
-            switchMode(newMode) {
-                this.mode = newMode;
-                document.getElementById('btn-native').className = `mode-btn native ${newMode==='native'?'active':''}`;
-                document.getElementById('btn-dementia').className = `mode-btn dementia ${newMode==='dementia'?'active':''}`;
-                
-                document.getElementById('panel-native').classList.remove('active');
-                document.getElementById('panel-dementia').classList.remove('active');
-                document.getElementById(`panel-${newMode}`).classList.add('active');
-
-                // Initialize map if switching to dementia mode for the first time
-                if(newMode === 'dementia' && !this.map && this.currentPos) {
-                    setTimeout(() => this.initMap(), 200);
-                }
-                
-                this.speak(`Switched to ${newMode === 'native' ? 'Women Safety' : 'Dementia Care'} mode.`);
-            }
-
-            switchTab(tab, element) {
-                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
-                
-                if(tab === 'settings') {
-                    document.getElementById(`panel-${this.mode}`).classList.remove('active');
-                    document.getElementById('panel-settings').classList.add('active');
-                } else {
-                    document.getElementById('panel-settings').classList.remove('active');
-                    document.getElementById(`panel-${this.mode}`).classList.add('active');
-                    if(this.mode === 'dementia' && this.map) this.map.invalidateSize();
-                }
-            }
-
-            showStatus(msg, color = 'var(--success)') {
-                let bar = document.getElementById('status-bar');
-                bar.innerText = msg;
-                bar.style.borderColor = color;
-                bar.style.display = 'block';
-                setTimeout(() => bar.style.display = 'none', 3000);
-            }
-
-            speak(text) {
-                if (this.synth.speaking) this.synth.cancel();
-                let utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-IN'; // Indian English accent
-                utterance.rate = 0.9;
-                this.synth.speak(utterance);
-            }
-
-            // ================== CORE GPS ==================
-            initGPS() {
-                navigator.geolocation.watchPosition(
-                    (pos) => {
-                        this.currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        if(this.mode === 'dementia') this.handleDementiaLogic();
-                        if(this.map && this.userMarker) {
-                            this.userMarker.setLatLng([this.currentPos.lat, this.currentPos.lng]);
-                        }
-                    },
-                    (e) => console.log("GPS Error", e),
-                    { enableHighAccuracy: true }
-                );
-            }
-
-            // ================== DEMENTIA MAP & ROUTING ==================
-            initMap() {
-                this.map = L.map('map').setView([this.currentPos.lat, this.currentPos.lng], 17);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-                
-                this.userMarker = L.circleMarker([this.currentPos.lat, this.currentPos.lng], {
-                    color: 'var(--neon-pink)', fillColor: 'var(--neon-pink)', fillOpacity: 0.8, radius: 8
-                }).addTo(this.map);
-
-                // Load saved home if exists
-                let savedHome = localStorage.getItem('rakshak_home');
-                if(savedHome) {
-                    this.homeZone = JSON.parse(savedHome);
-                    this.drawHomeZone();
-                }
-            }
-
-            setDementiaHome() {
-                if(!this.currentPos) return;
-                this.homeZone = { lat: this.currentPos.lat, lng: this.currentPos.lng, radius: 50 };
-                localStorage.setItem('rakshak_home', JSON.stringify(this.homeZone));
-                this.drawHomeZone();
-                this.showStatus("Home Safe Zone Set!", "var(--neon-blue)");
-                this.speak("Home safe zone secured.");
-            }
-
-            drawHomeZone() {
-                if(this.homeCircle) this.map.removeLayer(this.homeCircle);
-                this.homeCircle = L.circle([this.homeZone.lat, this.homeZone.lng], {
-                    color: 'var(--success)', fillColor: 'var(--success)', fillOpacity: 0.2, radius: 50
-                }).addTo(this.map);
-                this.map.setView([this.homeZone.lat, this.homeZone.lng], 17);
-            }
-
-            // The Magic: Real-time routing back home
-            handleDementiaLogic() {
-                if(!this.homeZone || !this.map) return;
-
-                let dist = this.getDistance(this.currentPos.lat, this.currentPos.lng, this.homeZone.lat, this.homeZone.lng);
-                let statusEl = document.getElementById('dementia-status');
-
-                // Patient wanders outside 50m
-                if(dist > 50 && !this.isWandering) {
-                    this.isWandering = true;
-                    statusEl.innerText = "🚨 Patient Wandering! Auto-Routing Active.";
-                    statusEl.style.color = "var(--alert-red)";
-                    
-                    this.speak("You have left the safe zone. Please follow the instructions to return home safely.");
-                    this.sendTelegram(`🚨 *DEMENTIA ALERT*\n${this.settings.name} has left the home zone.\nLocation: http://maps.google.com/?q=${this.currentPos.lat},${this.currentPos.lng}`);
-                    
-                    this.startRoutingToHome();
-                }
-
-                // Patient returns inside 50m
-                if(dist <= 50 && this.isWandering) {
-                    this.isWandering = false;
-                    statusEl.innerText = "✅ Patient is Safe (Inside Home Zone)";
-                    statusEl.style.color = "var(--success)";
-                    
-                    this.speak("You are back in the safe zone. Well done.");
-                    this.sendTelegram(`✅ *SAFE*\n${this.settings.name} has returned to the home safe zone.`);
-                    
-                    this.stopRouting();
-                }
-            }
-
-            startRoutingToHome() {
-                if(this.routingControl) this.map.removeControl(this.routingControl);
-                
-                // Leaflet Routing Machine uses real OSRM street data
-                this.routingControl = L.Routing.control({
-                    waypoints: [
-                        L.latLng(this.currentPos.lat, this.currentPos.lng), // Current
-                        L.latLng(this.homeZone.lat, this.homeZone.lng) // Target Home
-                    ],
-                    routeWhileDragging: false,
-                    addWaypoints: false,
-                    show: false, // Hides the big text box on UI
-                    lineOptions: { styles: [{color: 'var(--neon-blue)', opacity: 0.8, weight: 6}] }
-                }).addTo(this.map);
-
-                // Listen to route instructions and Speak them
-                this.routingControl.on('routesfound', (e) => {
-                    let routes = e.routes;
-                    // Grab the very next instruction (index 0 is usually start, index 1 is next turn)
-                    let nextInstruction = routes[0].instructions[0]; 
-                    
-                    if(nextInstruction && this.lastInstruction !== nextInstruction.text) {
-                        this.lastInstruction = nextInstruction.text;
-                        console.log("Routing:", nextInstruction.text);
-                        // Filter out empty "Head" texts, focus on Turns
-                        if(!nextInstruction.text.includes("Head")) {
-                            this.speak(nextInstruction.text);
-                        }
-                    }
-                });
-            }
-
-            stopRouting() {
-                if(this.routingControl) {
-                    this.map.removeControl(this.routingControl);
-                    this.routingControl = null;
-                }
-                this.lastInstruction = "";
-            }
-
-            // ================== NATIVE MODE (SOS & SECURITY) ==================
-            triggerSOS(reason) {
-                this.speak("Emergency SOS Activated. Alerting contacts.");
-                this.showStatus("SOS BROADCAST ACTIVE", "var(--alert-red)");
-                let loc = this.currentPos ? `http://maps.google.com/?q=${this.currentPos.lat},${this.currentPos.lng}` : "Unknown";
-                this.sendTelegram(`🚨 *EMERGENCY SOS: ${reason}*\nUser: ${this.settings.name}\nLocation: ${loc}`);
-                
-                // Push to Firebase for Angel Mode
-                this.db.ref('global_alerts').push({ 
-                    lat: this.currentPos.lat, lon: this.currentPos.lng, user: this.settings.name, timestamp: Date.now() 
-                });
-            }
-
-            triggerFakeCall() {
-                this.showStatus("Fake Call incoming in 3s...", "var(--warning)");
-                setTimeout(() => {
-                    alert("📞 Incoming Call: Police Control Room");
-                    this.speak("Hello. We have tracked your location and a patrol car is arriving in 2 minutes. Stay on the line.");
-                }, 3000);
-            }
-
-            toggleStealth() {
-                alert("Stealth Guard Active. Shake phone aggressively to trigger SOS covertly.");
-                window.addEventListener('devicemotion', (e) => {
-                    let acc = e.accelerationIncludingGravity;
-                    if(acc && (Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z) > 40)) {
-                        this.triggerSOS("Covert Shake SOS");
-                    }
-                });
-            }
-
-            toggleAngel() {
-                let btn = document.getElementById('angelBtn');
-                if(btn.innerText.includes("ON")) {
-                    btn.innerText = "Angel Mode ACTIVE 😇";
-                    btn.style.background = "var(--success)";
-                    this.db.ref('global_alerts').limitToLast(1).on('child_added', (snapshot) => {
-                        let data = snapshot.val();
-                        if (Date.now() - data.timestamp < 120000 && data.user !== this.settings.name) {
-                            alert(`🚨 ANGEL ALERT: ${data.user} is in danger nearby!`);
-                            this.speak("Warning. Someone nearby needs help.");
-                        }
-                    });
-                } else {
-                    btn.innerText = "Turn ON Angel Mode";
-                    btn.style.background = "#222";
-                    this.db.ref('global_alerts').off();
-                }
-            }
-
-            // ================== UTILITIES ==================
-            getDistance(lat1, lon1, lat2, lon2) {
-                let R = 6371000, dL = (lat2-lat1)*Math.PI/180, dN = (lon2-lon1)*Math.PI/180;
-                let a = Math.sin(dL/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dN/2)**2;
-                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            }
-
-            async sendTelegram(text) {
-                if(!this.settings.token || !this.settings.chatId) return;
-                try {
-                    await fetch(`https://api.telegram.org/bot${this.settings.token}/sendMessage`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({chat_id: this.settings.chatId, text: text, parse_mode: 'Markdown'})
-                    });
-                } catch(e) {}
-            }
-
-            saveSettings() {
-                this.settings.token = document.getElementById('tg-token').value;
-                this.settings.chatId = document.getElementById('tg-chatid').value;
-                this.settings.name = document.getElementById('user-name').value;
-                localStorage.setItem('rakshak_super_config', JSON.stringify(this.settings));
-                this.showStatus("Settings Saved", "var(--success)");
-            }
-
-            loadSettings() {
-                let s = localStorage.getItem('rakshak_super_config');
-                if(s) {
-                    this.settings = JSON.parse(s);
-                    document.getElementById('tg-token').value = this.settings.token;
-                    document.getElementById('tg-chatid').value = this.settings.chatId;
-                    document.getElementById('user-name').value = this.settings.name;
-                }
+            if(mode === 'dementia' && !dementiaMap && myLat) {
+                setTimeout(initDementiaMap, 300); // Initialize map when panel is visible
             }
         }
 
-        const app = new RakshakSuperApp();
+        // ==========================================
+        // DEMENTIA ENGINE (NEW ADDITION)
+        // ==========================================
+        let dementiaMap = null, userMarkerDementia = null, homeCircle = null;
+        let homeZone = null; // {lat, lng}
+        let routingControl = null;
+        let isWandering = false;
+        let lastVoiceInstruction = "";
+        const synth = window.speechSynthesis;
+
+        function speakVoicePrompt(text) {
+            if (synth.speaking) synth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-IN'; // Indian English
+            synth.speak(utterance);
+        }
+
+        function initDementiaMap() {
+            if(dementiaMap) return;
+            dementiaMap = L.map('dementia-map').setView([myLat, myLon], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(dementiaMap);
+            userMarkerDementia = L.circleMarker([myLat, myLon], {color: 'red', fillOpacity: 0.8, radius: 8}).addTo(dementiaMap);
+
+            let savedHome = localStorage.getItem('rakshak_dementia_home');
+            if(savedHome) {
+                homeZone = JSON.parse(savedHome);
+                drawHomeCircle();
+            }
+        }
+
+        function setDementiaHome() {
+            if(!myLat) return alert("Waiting for GPS lock...");
+            homeZone = { lat: myLat, lng: myLon, radius: 50 };
+            localStorage.setItem('rakshak_dementia_home', JSON.stringify(homeZone));
+            drawHomeCircle();
+            alert("Home Safe Zone (50m) configured successfully!");
+        }
+
+        function drawHomeCircle() {
+            if(homeCircle) dementiaMap.removeLayer(homeCircle);
+            homeCircle = L.circle([homeZone.lat, homeZone.lng], {
+                color: '#10b981', fillColor: '#10b981', fillOpacity: 0.2, radius: 50
+            }).addTo(dementiaMap);
+            dementiaMap.setView([homeZone.lat, homeZone.lng], 17);
+        }
+
+        function getDistance(lat1, lon1, lat2, lon2) {
+            let R = 6371000, dL = (lat2-lat1)*Math.PI/180, dN = (lon2-lon1)*Math.PI/180;
+            let a = Math.sin(dL/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dN/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function checkDementiaLogic() {
+            if(!homeZone || !dementiaMap) return;
+            let dist = getDistance(myLat, myLon, homeZone.lat, homeZone.lng);
+            let statusText = document.getElementById('dem-status-text');
+
+            // Wander detected (> 50m)
+            if(dist > 50 && !isWandering) {
+                isWandering = true;
+                statusText.innerText = "🚨 Patient Wandering! Auto-Routing Active.";
+                statusText.style.color = "var(--alert-red)";
+                
+                speakVoicePrompt("You have left the safe zone. Please follow the instructions to return home.");
+                const chatID = localStorage.getItem("raksha_chat_id") || "8508792403";
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatID}&text=${encodeURIComponent("🚨 DEMENTIA ALERT: Patient has left the safe zone! Live Tracking active.")}`);
+                
+                startRoutingToHome();
+            }
+
+            // Returned Safe (<= 50m)
+            if(dist <= 50 && isWandering) {
+                isWandering = false;
+                statusText.innerText = "✅ Patient is Safe (Inside Home Zone)";
+                statusText.style.color = "var(--success)";
+                
+                speakVoicePrompt("You are back in the safe zone. Well done.");
+                const chatID = localStorage.getItem("raksha_chat_id") || "8508792403";
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatID}&text=${encodeURIComponent("✅ SAFE: Patient has returned to the home zone.")}`);
+                
+                stopRouting();
+            }
+        }
+
+        function startRoutingToHome() {
+            if(routingControl) dementiaMap.removeControl(routingControl);
+            routingControl = L.Routing.control({
+                waypoints: [ L.latLng(myLat, myLon), L.latLng(homeZone.lat, homeZone.lng) ],
+                routeWhileDragging: false, show: false, // Hides UI text box
+                lineOptions: { styles: [{color: 'var(--neon-blue)', weight: 6}] }
+            }).addTo(dementiaMap);
+
+            routingControl.on('routesfound', (e) => {
+                let instructions = e.routes[0].instructions;
+                let nextTurn = instructions[0]; // Get current step
+                if(nextTurn && lastVoiceInstruction !== nextTurn.text) {
+                    lastVoiceInstruction = nextTurn.text;
+                    if(!nextTurn.text.includes("Head")) speakVoicePrompt(nextTurn.text);
+                }
+            });
+        }
+
+        function stopRouting() {
+            if(routingControl) { dementiaMap.removeControl(routingControl); routingControl = null; }
+            lastVoiceInstruction = "";
+        }
+
+
+        // ==========================================
+        // ORIGINAL NATIVE LOGIC (100% UNTOUCHED)
+        // ==========================================
+        window.handleHardwareTrigger = handleHardwareTrigger;
+        window.startEmergency = startEmergency;
+
+        async function startSilentCallRecord() {
+            const savedChatID = localStorage.getItem("raksha_chat_id") || "8508792403";
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const recorder = new MediaRecorder(stream);
+                let chunks = [];
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+                recorder.onstop = async () => {
+                    const blob = new Blob(chunks, { type: 'audio/ogg' });
+                    const fd = new FormData();
+                    fd.append("chat_id", savedChatID);
+                    fd.append("voice", blob, "call_rec.ogg");
+                    fd.append("caption", "🔴 Call Recording Detected: " + (localStorage.getItem("raksha_user_name") || "User"));
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVoice`, { method: "POST", body: fd });
+                    stream.getTracks().forEach(track => track.stop());
+                };
+                recorder.start();
+                setTimeout(() => { if (recorder.state === "recording") recorder.stop(); }, 60000); 
+            } catch (e) { console.log("Recorder Error: " + e); }
+        }
+
+        const firebaseConfig = { apiKey: "AIzaSyBRVPpAPAquoxRrMxSUbinZ9Z8bRIlB37M", databaseURL: "https://raksha-network-299bf-default-rtdb.firebaseio.com", projectId: "raksha-network-299bf" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+        const BOT_TOKEN = "8378037937:AAGjuFdZWLnf0kFfTG_QIFCslgvrDMb-sC4";
+        let myLat=0, myLon=0, victimLat=0, victimLon=0, emergencyActive=false, isArmed=false, tapCount=0;
+        let ringtone = new Audio('https://upload.wikimedia.org/wikipedia/commons/e/e5/Nokia_tune_2012.ogg'); ringtone.loop = true;
+        let mediaRecorder, recordedChunks = [], volKeyPressCount = 0, volKeyTimer;
+
+        async function getBatteryLevel() {
+            try {
+                const battery = await navigator.getBattery();
+                const level = Math.round(battery.level * 100) + "%";
+                document.getElementById('batDisplay').innerText = level;
+                return level;
+            } catch (e) { return "N/A"; }
+        }
+
+        async function masterInit() {
+            if (isArmed) return;
+            document.getElementById('initOverlay').style.display = 'none';
+            document.getElementById('systemStatus').innerText = 'ARMED';
+            document.getElementById('systemStatus').style.color = '#00d2ff';
+            if ('wakeLock' in navigator) { try { await navigator.wakeLock.request('screen'); } catch(e){} }
+            try { 
+                const s = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }); 
+                s.getTracks().forEach(t => t.stop());
+            } catch(e){}
+            getBatteryLevel();
+            isArmed = true;
+            if(localStorage.getItem("raksha_angel") === "true") { document.getElementById("angelToggle").checked = true; toggleAngelMode(); }
+        }
+
+        navigator.geolocation.watchPosition(pos => {
+            myLat = pos.coords.latitude; myLon = pos.coords.longitude;
+            // Update Dementia Map if active
+            if(userMarkerDementia) {
+                userMarkerDementia.setLatLng([myLat, myLon]);
+                dementiaMap.panTo([myLat, myLon]);
+            }
+            if(currentMode === 'dementia') checkDementiaLogic();
+        }, null, {enableHighAccuracy: true});
+
+        function handleHardwareTrigger() {
+            volKeyPressCount++;
+            clearTimeout(volKeyTimer);
+            if (volKeyPressCount >= 3) {
+                if (!emergencyActive) startEmergency("Hardware 3-Press SOS");
+                volKeyPressCount = 0;
+            }
+            volKeyTimer = setTimeout(() => { volKeyPressCount = 0; }, 2500);
+        }
+
+        async function startEmergency(triggerType = "Manual") {
+            if(emergencyActive) return;
+            emergencyActive = true;
+            if(navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
+            const chatID = localStorage.getItem("raksha_chat_id") || "8508792403";
+            const user = localStorage.getItem("raksha_user_name") || "Victim";
+            document.getElementById("stealthOverlay").style.display = "block";
+            db.ref('global_alerts').push({ lat: myLat, lon: myLon, user: user, timestamp: Date.now() });
+            startEvidenceRecording(chatID);
+            const sosLoop = setInterval(async () => {
+                const bat = await getBatteryLevel();
+                const mapLink = `https://www.google.com/maps?q=${myLat},${myLon}`;
+                const msg = `🚨 SOS UPDATE: ${triggerType}\n👤 User: ${user}\n🔋 Battery: ${bat}\n📍 Loc: ${mapLink}`;
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatID}&text=${encodeURIComponent(msg)}`);
+                if(!emergencyActive) clearInterval(sosLoop);
+            }, 10000);
+        }
+
+        function toggleAngelMode() {
+            const isAngel = document.getElementById("angelToggle").checked;
+            localStorage.setItem("raksha_angel", isAngel);
+            document.getElementById("angelStatusDisplay").innerText = isAngel ? "ANGEL: ON" : "ANGEL: OFF";
+            const alertsRef = db.ref('global_alerts');
+            if (isAngel) {
+                alertsRef.limitToLast(1).on('child_added', (snapshot) => {
+                    const data = snapshot.val(); const currentTime = Date.now(); const userName = localStorage.getItem("raksha_user_name");
+                    if (data && (currentTime - data.timestamp < 120000) && (data.user !== userName)) showAngelAlert(data);
+                });
+            } else { alertsRef.off(); }
+        }
+
+        function showAngelAlert(data) { document.getElementById("victimDisplayName").innerText = data.user; victimLat = data.lat; victimLon = data.lon; document.getElementById("angelAlertBox").style.display = "block"; if(navigator.vibrate) navigator.vibrate([1000, 300, 1000, 300, 1000]); }
+        function openMapToVictim() { window.open(`https://www.google.com/maps?q=${victimLat},${victimLon}`); }
+        function closeAngelAlert() { document.getElementById("angelAlertBox").style.display = "none"; }
+
+        async function startEvidenceRecording(chatID) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: "environment" } });
+                document.getElementById("hiddenVideo").srcObject = stream;
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: "video/webm" }); recordedChunks = [];
+                    const formData = new FormData(); formData.append("chat_id", chatID); formData.append("document", blob, "SOS_Evidence.webm");
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: "POST", body: formData });
+                };
+                mediaRecorder.start();
+                setInterval(() => { if (mediaRecorder.state === "recording") { mediaRecorder.stop(); setTimeout(() => { if(emergencyActive) mediaRecorder.start(); }, 500); } }, 10000);
+            } catch (err) {}
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.keyCode === 24 || e.keyCode === 25) handleHardwareTrigger(); });
+        function triggerFakeCall() { setTimeout(() => { document.getElementById("fakeCallScreen").style.display = "flex"; ringtone.play(); }, 3000); }
+        function endFakeCall() { document.getElementById("fakeCallScreen").style.display = "none"; ringtone.pause(); }
+        function answerFakeCall() { ringtone.pause(); window.speechSynthesis.speak(new SpeechSynthesisUtterance("Hello beta, hum location trace kar rahe hain. Police aa rahi hai.")); }
+        function toggleScreamGuard() {
+            document.getElementById("stealthOverlay").style.display = "block";
+            window.addEventListener('devicemotion', e => { let a = e.accelerationIncludingGravity; if(Math.abs(a.x)+Math.abs(a.y)+Math.abs(a.z) > 45 && !emergencyActive) startEmergency("SHAKE DETECTED"); });
+        }
+        function saveSettings() { localStorage.setItem("raksha_chat_id", document.getElementById("userChatId").value); localStorage.setItem("raksha_user_name", document.getElementById("userNameInput").value); localStorage.setItem("raksha_phone", document.getElementById("userPhone").value); alert("Saved!"); location.reload(); }
+        function toggleSettings() { const p = document.getElementById("settingsPanel"); p.style.display = (p.style.display === "block" ? "none" : "block"); }
+        function openSecretMode() { document.getElementById("secretModal").style.display = "block"; }
+        function closeSecretMode() { document.getElementById("secretModal").style.display = "none"; }
+        function checkSecretPass() { if(document.getElementById("secretPass").value === "1234") { document.getElementById("fakeLogin").style.display = "none"; document.getElementById("realHelp").style.display = "block"; } }
+        function handleStealthTap() { tapCount++; if(tapCount>=6) { emergencyActive = false; location.reload(); } }
+        function triggerUpload() { document.getElementById('fileInput').click(); }
+        function handleImageUpload(e) { const reader = new FileReader(); reader.onload = (ev) => { localStorage.setItem("raksha_pic", ev.target.result); document.getElementById("displayProfilePic").style.backgroundImage = `url(${ev.target.result})`; }; reader.readAsDataURL(e.target.files[0]); }
+        function makeCall() { window.location.href = "tel:" + (localStorage.getItem("raksha_phone") || "112"); }
+        function manualLocation() { window.open(`https://wa.me/?text=Live Loc: https://www.google.com/maps?q=${myLat},${myLon}`); }
+
+        window.onload = () => {
+            const pic = localStorage.getItem("raksha_pic"), name = localStorage.getItem("raksha_user_name");
+            if(pic) document.getElementById("displayProfilePic").style.backgroundImage = `url(${pic})`;
+            if(name) document.getElementById("displayHeaderName").innerText = name;
+            document.getElementById("userChatId").value = localStorage.getItem("raksha_chat_id") || "";
+            document.getElementById("userPhone").value = localStorage.getItem("raksha_phone") || "";
+            document.getElementById("userNameInput").value = name || "";
+            getBatteryLevel();
+        };
+
+        // --- Draggable Human Logic (Original) ---
+        const container = document.getElementById("draggable-human");
+        const sound = document.getElementById("heart-sound");
+        let isDragging = false;
+        function startDrag(e) {
+            isDragging = false;
+            let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+            let shiftX = clientX - container.getBoundingClientRect().left;
+            let shiftY = clientY - container.getBoundingClientRect().top;
+            function moveAt(pageX, pageY) { container.style.left = (pageX - shiftX) + 'px'; container.style.top = (pageY - shiftY) + 'px'; container.style.bottom = 'auto'; container.style.right = 'auto'; }
+            function onMouseMove(e) { isDragging = true; let moveX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX; let moveY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY; moveAt(moveX, moveY); if (sound.paused) { sound.volume = 0.2; sound.play().catch(() => {}); } }
+            document.addEventListener("mousemove", onMouseMove); document.addEventListener("touchmove", onMouseMove, { passive: false });
+            document.onmouseup = document.ontouchend = function() { document.removeEventListener("mousemove", onMouseMove); document.removeEventListener("touchmove", onMouseMove); document.onmouseup = document.ontouchend = null; };
+        }
+        container.addEventListener("mousedown", startDrag); container.addEventListener("touchstart", startDrag, { passive: false });
+        container.querySelector('a').addEventListener("click", (e) => { if (isDragging) { e.preventDefault(); } else { sound.play().catch(() => {}); } });
     </script>
 </body>
 </html>
