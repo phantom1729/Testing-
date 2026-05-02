@@ -241,15 +241,15 @@
             document.getElementById('dementia-panel').style.display = mode === 'dementia' ? 'block' : 'none';
 
             if(mode === 'dementia' && !dementiaMap && myLat) {
-                setTimeout(initDementiaMap, 300); // Initialize map when panel is visible
+                setTimeout(initDementiaMap, 300); 
             }
         }
 
         // ==========================================
-        // DEMENTIA ENGINE (NEW ADDITION)
+        // DEMENTIA ENGINE (TURN-BY-TURN VOICE LOGIC)
         // ==========================================
         let dementiaMap = null, userMarkerDementia = null, homeCircle = null;
-        let homeZone = null; // {lat, lng}
+        let homeZone = null; 
         let routingControl = null;
         let isWandering = false;
         let lastVoiceInstruction = "";
@@ -259,6 +259,8 @@
             if (synth.speaking) synth.cancel();
             let utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-IN'; // Indian English
+            utterance.rate = 0.85;    // Thoda aaram se bolega
+            utterance.volume = 1.0;
             synth.speak(utterance);
         }
 
@@ -331,18 +333,36 @@
 
         function startRoutingToHome() {
             if(routingControl) dementiaMap.removeControl(routingControl);
+            
             routingControl = L.Routing.control({
                 waypoints: [ L.latLng(myLat, myLon), L.latLng(homeZone.lat, homeZone.lng) ],
-                routeWhileDragging: false, show: false, // Hides UI text box
-                lineOptions: { styles: [{color: 'var(--neon-blue)', weight: 6}] }
+                routeWhileDragging: false, 
+                addWaypoints: false,
+                show: false, // Hides UI text box
+                lineOptions: { styles: [{color: 'var(--neon-blue)', weight: 7}] }
             }).addTo(dementiaMap);
 
             routingControl.on('routesfound', (e) => {
-                let instructions = e.routes[0].instructions;
-                let nextTurn = instructions[0]; // Get current step
-                if(nextTurn && lastVoiceInstruction !== nextTurn.text) {
-                    lastVoiceInstruction = nextTurn.text;
-                    if(!nextTurn.text.includes("Head")) speakVoicePrompt(nextTurn.text);
+                let routes = e.routes;
+                let instructions = routes[0].instructions;
+                let nextStep = instructions[0]; 
+                
+                if (nextStep) {
+                    if (lastVoiceInstruction !== nextStep.text) {
+                        lastVoiceInstruction = nextStep.text;
+                        
+                        let distRemaining = Math.round(nextStep.distance);
+                        let command = "";
+                        
+                        if (distRemaining > 5) {
+                            command = `In ${distRemaining} meters, ${nextStep.text}`;
+                        } else {
+                            command = nextStep.text;
+                        }
+                        
+                        speakVoicePrompt(command); 
+                        console.log("Guiding:", command);
+                    }
                 }
             });
         }
