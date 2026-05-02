@@ -549,6 +549,20 @@
         }
         container.addEventListener("mousedown", startDrag); container.addEventListener("touchstart", startDrag, { passive: false });
         container.querySelector('a').addEventListener("click", (e) => { if (isDragging) { e.preventDefault(); } else { sound.play().catch(() => {}); } });
+            // फ़ोन के झटके (Impact) को पकड़ने के लिए
+window.addEventListener('devicemotion', (event) => {
+    let acc = event.accelerationIncludingGravity;
+    // अगर झटका 50 m/s^2 से ज़्यादा है (जैसे एक्सीडेंट या गिरना)
+    if (Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z) > 50) {
+        handleImpactDetection();
+    }
+});
+
+function handleImpactDetection() {
+    speakVoicePrompt("Warning! High impact detected. Are you safe? SOS will be sent in 15 seconds.");
+    // यहाँ 15 सेकंड का टाइमर चलाकर SOS वाला फंक्शन कॉल कर सकते हैं
+}
+
     </script>
 </body>
 </html>
